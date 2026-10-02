@@ -1,171 +1,300 @@
-const typingForm = document.querySelector(".typing-form");const chatContainer = document.querySelector(".chat-list");
-const suggestions = document.querySelectorAll(".suggestion");
-const toggleThemeButton = document.querySelector("#theme-toggle-button");
-const deleteChatButton = document.querySelector("#delete-chat-button");
+/* =========================================
+   QUEEN LEXIE V4
+   ZIGALY XR
+   ========================================= */
 
-// State variables
-let userMessage = null;
-let isResponseGenerating = false;
+const canvas = document.getElementById("matrix");
+const ctx = canvas.getContext("2d");
 
-// API configuration
-const API_KEY = "AIzaSyAz7Cc22lLRcLSR2XSF7lMot_91WxlXfYw"; // Your API key here
-const API_URL = `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${API_KEY}`;
+const statusDot = document.getElementById("statusDot");
+const statusText = document.getElementById("statusText");
 
-// Load theme and chat data from local storage on page load
-const loadDataFromLocalstorage = () => {
-  const savedChats = localStorage.getItem("saved-chats");
-  const isLightMode = (localStorage.getItem("themeColor") === "light_mode");
+const generateBtn = document.getElementById("generateBtn");
+const phoneNumber = document.getElementById("phoneNumber");
 
-  // Apply the stored theme
-  document.body.classList.toggle("light_mode", isLightMode);
-  toggleThemeButton.innerText = isLightMode ? "dark_mode" : "light_mode";
+const message = document.getElementById("message");
+const pairingBox = document.getElementById("pairingBox");
+const pairingCode = document.getElementById("pairingCode");
 
-  // Restore saved chats or clear the chat container
-  chatContainer.innerHTML = savedChats || '';
-  document.body.classList.toggle("hide-header", savedChats);
 
-  chatContainer.scrollTo(0, chatContainer.scrollHeight); // Scroll to the bottom
-}
+/* =========================================
+   RED MATRIX EFFECT
+   ========================================= */
 
-// Create a new message element and return it
-const createMessageElement = (content, ...classes) => {
-  const div = document.createElement("div");
-  div.classList.add("message", ...classes);
-  div.innerHTML = content;
-  return div;
-}
+let fontSize = 14;
+let columns;
+let drops;
 
-// Show typing effect by displaying words one by one
-const showTypingEffect = (text, textElement, incomingMessageDiv) => {
-  const words = text.split(' ');
-  let currentWordIndex = 0;
+function setupMatrix() {
 
-  const typingInterval = setInterval(() => {
-    // Append each word to the text element with a space
-    textElement.innerText += (currentWordIndex === 0 ? '' : ' ') + words[currentWordIndex++];
-    incomingMessageDiv.querySelector(".icon").classList.add("hide");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 
-    // If all words are displayed
-    if (currentWordIndex === words.length) {
-      clearInterval(typingInterval);
-      isResponseGenerating = false;
-      incomingMessageDiv.querySelector(".icon").classList.remove("hide");
-      localStorage.setItem("saved-chats", chatContainer.innerHTML); // Save chats to local storage
+    columns = Math.floor(canvas.width / fontSize);
+
+    drops = [];
+
+    for (let i = 0; i < columns; i++) {
+        drops[i] = Math.random() * -50;
     }
-    chatContainer.scrollTo(0, chatContainer.scrollHeight); // Scroll to the bottom
-  }, 75);
 }
 
-// Fetch response from the API based on user message
-const generateAPIResponse = async (incomingMessageDiv) => {
-  const textElement = incomingMessageDiv.querySelector(".text"); // Getting text element
+function drawMatrix() {
 
-  try {
-    // Send a POST request to the API with the user's message
-    const response = await fetch(API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ 
-        contents: [{ 
-          role: "user", 
-          parts: [{ text: userMessage }] 
-        }] 
-      }),
-    });
+    ctx.fillStyle = "rgba(0, 0, 0, 0.08)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.error.message);
+    ctx.font = fontSize + "px monospace";
 
-    // Get the API response text and remove asterisks from it
-    const apiResponse = data?.candidates[0].content.parts[0].text.replace(/\*\*(.*?)\*\*/g, '$1');
-    showTypingEffect(apiResponse, textElement, incomingMessageDiv); // Show typing effect
-  } catch (error) { // Handle error
-    isResponseGenerating = false;
-    textElement.innerText = error.message;
-    textElement.parentElement.closest(".message").classList.add("error");
-  } finally {
-    incomingMessageDiv.classList.remove("loading");
-  }
+    const characters =
+        "01ABCDEFGHIJKLMNOPQRSTUVWXYZ#$%&@<>[]{}";
+
+    for (let i = 0; i < drops.length; i++) {
+
+        const character =
+            characters.charAt(
+                Math.floor(Math.random() * characters.length)
+            );
+
+        ctx.fillStyle =
+            Math.random() > 0.9
+                ? "#ffffff"
+                : "#ff003c";
+
+        ctx.shadowBlur = 8;
+        ctx.shadowColor = "#ff003c";
+
+        ctx.fillText(
+            character,
+            i * fontSize,
+            drops[i] * fontSize
+        );
+
+        ctx.shadowBlur = 0;
+
+        if (
+            drops[i] * fontSize > canvas.height &&
+            Math.random() > 0.975
+        ) {
+            drops[i] = 0;
+        }
+
+        drops[i]++;
+    }
 }
 
-// Show a loading animation while waiting for the API response
-const showLoadingAnimation = () => {
-  const html = `<div class="message-content">
-                  <img class="avatar" src="https://iili.io/2K5KbDJ.jpg" alt="Gemini avatar">
-                  <p class="text"></p>
-                  <div class="loading-indicator">
-                    <div class="loading-bar"></div>
-                    <div class="loading-bar"></div>
-                    <div class="loading-bar"></div>
-                  </div>
-                </div>
-                <span onClick="copyMessage(this)" class="icon material-symbols-rounded">content_copy</span>`;
+setupMatrix();
 
-  const incomingMessageDiv = createMessageElement(html, "incoming", "loading");
-  chatContainer.appendChild(incomingMessageDiv);
+setInterval(drawMatrix, 40);
 
-  chatContainer.scrollTo(0, chatContainer.scrollHeight); // Scroll to the bottom
-  generateAPIResponse(incomingMessageDiv);
+window.addEventListener("resize", setupMatrix);
+
+
+/* =========================================
+   BOT STATUS
+   ========================================= */
+
+const BOT_URL = "https://pair.xwolf.space";
+
+
+function setStatus(online) {
+
+    if (online) {
+
+        statusText.textContent = "BOT ONLINE";
+
+        statusDot.style.background = "#00ff73";
+        statusDot.style.boxShadow =
+            "0 0 12px #00ff73";
+
+        generateBtn.disabled = false;
+
+    } else {
+
+        statusText.textContent = "BOT OFFLINE";
+
+        statusDot.style.background = "#ff003c";
+        statusDot.style.boxShadow =
+            "0 0 12px #ff003c";
+
+        generateBtn.disabled = true;
+    }
 }
 
-// Copy message text to the clipboard
-const copyMessage = (copyButton) => {
-  const messageText = copyButton.parentElement.querySelector(".text").innerText;
 
-  navigator.clipboard.writeText(messageText);
-  copyButton.innerText = "done"; // Show confirmation icon
-  setTimeout(() => copyButton.innerText = "content_copy", 1000); // Revert icon after 1 second
+async function checkBotStatus() {
+
+    statusText.textContent = "CHECKING BOT...";
+
+    statusDot.style.background = "orange";
+    statusDot.style.boxShadow = "0 0 12px orange";
+
+    /*
+       A browser cannot reliably determine the status of
+       another server unless that server allows CORS or
+       provides a status API.
+
+       Therefore this tries the server and safely falls
+       back to OFFLINE/UNAVAILABLE.
+    */
+
+    try {
+
+        const controller = new AbortController();
+
+        const timeout = setTimeout(
+            () => controller.abort(),
+            5000
+        );
+
+        const response = await fetch(BOT_URL, {
+            method: "GET",
+            mode: "no-cors",
+            signal: controller.signal
+        });
+
+        clearTimeout(timeout);
+
+        /*
+           no-cors responses cannot expose the HTTP status.
+           Reaching this point means the request itself was
+           attempted successfully.
+        */
+
+        setStatus(true);
+
+    } catch (error) {
+
+        setStatus(false);
+
+        showMessage(
+            "QUEEN LEXIE is currently offline. Please try again later.",
+            "error"
+        );
+    }
 }
 
-// Handle sending outgoing chat messages
-const handleOutgoingChat = () => {
-  userMessage = typingForm.querySelector(".typing-input").value.trim() || userMessage;
-  if(!userMessage || isResponseGenerating) return; // Exit if there is no message or response is generating
 
-  isResponseGenerating = true;
+/* =========================================
+   MESSAGE
+   ========================================= */
 
-  const html = `<div class="message-content">
-                  <img class="avatar" src="https://iili.io/2K5crx4.jpg" alt="User avatar">
-                  <p class="text"></p>
-                </div>`;
+function showMessage(text, type) {
 
-  const outgoingMessageDiv = createMessageElement(html, "outgoing");
-  outgoingMessageDiv.querySelector(".text").innerText = userMessage;
-  chatContainer.appendChild(outgoingMessageDiv);
-  
-  typingForm.reset(); // Clear input field
-  document.body.classList.add("hide-header");
-  chatContainer.scrollTo(0, chatContainer.scrollHeight); // Scroll to the bottom
-  setTimeout(showLoadingAnimation, 500); // Show loading animation after a delay
+    message.textContent = text;
+    message.className = "message " + type;
 }
 
-// Toggle between light and dark themes
-toggleThemeButton.addEventListener("click", () => {
-  const isLightMode = document.body.classList.toggle("light_mode");
-  localStorage.setItem("themeColor", isLightMode ? "light_mode" : "dark_mode");
-  toggleThemeButton.innerText = isLightMode ? "dark_mode" : "light_mode";
+
+/* =========================================
+   GENERATOR BUTTON
+   ========================================= */
+
+generateBtn.addEventListener("click", async () => {
+
+    const number = phoneNumber.value.trim();
+
+    pairingBox.style.display = "none";
+
+    if (!number) {
+
+        showMessage(
+            "Please enter your phone number first.",
+            "error"
+        );
+
+        return;
+    }
+
+    if (!/^[0-9+\s()-]{7,20}$/.test(number)) {
+
+        showMessage(
+            "Please enter a valid phone number.",
+            "error"
+        );
+
+        return;
+    }
+
+    generateBtn.disabled = true;
+
+    generateBtn.innerHTML =
+        "<span>⏳</span> CHECKING SERVER...";
+
+    showMessage(
+        "Connecting to the pairing service...",
+        "success"
+    );
+
+    /*
+       IMPORTANT:
+       Do not generate a fake WhatsApp pairing code
+       in the browser.
+
+       Your backend should provide a legitimate endpoint
+       that creates/returns the pairing code after proper
+       authorization.
+
+       Example backend endpoint:
+       /api/pair?phone=NUMBER
+
+       Replace the example section below with your own
+       authenticated backend API.
+    */
+
+    try {
+
+        /*
+        Example:
+
+        const response = await fetch(
+            "/api/pair?phone=" +
+            encodeURIComponent(number)
+        );
+
+        const data = await response.json();
+
+        if (!response.ok || !data.code) {
+            throw new Error("Pairing service unavailable");
+        }
+
+        pairingCode.textContent = data.code;
+        pairingBox.style.display = "block";
+
+        showMessage(
+            "Pairing code generated successfully.",
+            "success"
+        );
+        */
+
+        await new Promise(
+            resolve => setTimeout(resolve, 1200)
+        );
+
+        showMessage(
+            "The pairing generator is not connected to a backend yet. No fake code was generated.",
+            "error"
+        );
+
+    } catch (error) {
+
+        showMessage(
+            "QUEEN LEXIE pairing service is unavailable.",
+            "error"
+        );
+
+    } finally {
+
+        generateBtn.disabled = false;
+
+        generateBtn.innerHTML =
+            "<span>⚡</span> GENERATE PAIRING CODE";
+    }
 });
 
-// Delete all chats from local storage when button is clicked
-deleteChatButton.addEventListener("click", () => {
-  if (confirm("Are you sure you want to delete all the chats?")) {
-    localStorage.removeItem("saved-chats");
-    loadDataFromLocalstorage();
-  }
-});
 
-// Set userMessage and handle outgoing chat when a suggestion is clicked
-suggestions.forEach(suggestion => {
-  suggestion.addEventListener("click", () => {
-    userMessage = suggestion.querySelector(".text").innerText;
-    handleOutgoingChat();
-  });
-});
+/* =========================================
+   START
+   ========================================= */
 
-// Prevent default form submission and handle outgoing chat
-typingForm.addEventListener("submit", (e) => {
-  e.preventDefault(); 
-  handleOutgoingChat();
-});
-
-loadDataFromLocalstorage();
+checkBotStatus();
