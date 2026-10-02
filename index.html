@@ -4,94 +4,133 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>QUEEN LEXIE V4 | Pairing</title>
+    <title>QUEEN LEXIE V4</title>
 
     <meta name="description"
-          content="QUEEN LEXIE V4 WhatsApp Bot Pairing Website - Developed by ZIGALY XR">
+          content="QUEEN LEXIE V4 secure pairing service">
 
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/style.css">
 </head>
 
 <body>
 
-    <!-- Matrix Background -->
     <canvas id="matrix"></canvas>
 
-    <!-- Main Content -->
     <main class="container">
 
-        <div class="card">
+        <section class="card">
 
+            <!-- BOT STATUS -->
             <div class="status">
                 <span id="statusDot"></span>
-                <span id="statusText">CHECKING BOT...</span>
+                <span id="statusText">CHECKING...</span>
             </div>
 
-            <div class="logo">
+            <!-- BRAND -->
+            <div class="brand">
                 <div class="crown">♛</div>
-                <h1>QUEEN <span>LEXIE</span></h1>
-                <p class="version">V4 PAIRING SYSTEM</p>
+
+                <h1>
+                    QUEEN <span>LEXIE</span>
+                </h1>
+
+                <p>V4 PAIRING SYSTEM</p>
             </div>
 
-            <div class="divider"></div>
+            <div class="line"></div>
 
             <p class="description">
-                Connect your WhatsApp account to
+                Connect your WhatsApp account with
                 <strong>QUEEN LEXIE V4</strong>.
             </p>
 
-            <div class="input-box">
+            <!-- PHONE -->
+            <div class="input-group">
+
+                <label for="phoneNumber">
+                    PHONE NUMBER
+                </label>
+
                 <input
-                    type="text"
                     id="phoneNumber"
+                    type="tel"
                     placeholder="Enter phone number"
                     autocomplete="off"
                 >
+
             </div>
 
-            <button id="generateBtn" class="generate-btn">
-                <span>⚡</span>
-                GENERATE PAIRING CODE
+            <!-- GENERATE -->
+            <button
+                id="generateBtn"
+                class="generate-btn"
+                type="button"
+            >
+                ⚡ GENERATE PAIRING CODE
             </button>
 
-            <div id="message" class="message"></div>
+            <!-- MESSAGE -->
+            <div
+                id="message"
+                class="message"
+                aria-live="polite"
+            ></div>
 
-            <div class="pairing-box" id="pairingBox">
-                <p>PAIRING CODE</p>
-                <div id="pairingCode">----</div>
+            <!-- PAIRING RESULT -->
+            <div
+                id="pairingBox"
+                class="pairing-box"
+            >
+
+                <small>PAIRING CODE</small>
+
+                <div id="pairingCode">
+                    ----
+                </div>
+
+                <button
+                    id="copyBtn"
+                    class="copy-btn"
+                    type="button"
+                >
+                    COPY CODE
+                </button>
+
             </div>
 
+            <!-- INFO -->
             <div class="info">
+
                 <div>
                     <span>BOT</span>
                     <strong>QUEEN LEXIE V4</strong>
                 </div>
 
                 <div>
-                    <span>SERVER</span>
-                    <strong>PAIR.XWOLF.SPACE</strong>
+                    <span>STATUS</span>
+                    <strong id="infoStatus">Checking...</strong>
                 </div>
 
                 <div>
                     <span>DEVELOPER</span>
                     <strong>ZIGALY XR</strong>
                 </div>
+
             </div>
 
-        </div>
+        </section>
 
-        <!-- Highlighted Developer Text -->
         <div class="zigaly">
             <span>ZIGALY XR</span>
         </div>
 
         <footer>
-            QUEEN LEXIE V4 • Developed by ZIGALY XR
+            QUEEN LEXIE V4 • DEVELOPED BY ZIGALY XR
         </footer>
 
     </main>
 
-    <script src="script.js"></script>
+    <script src="/script.js"></script>
 
 </body>
-</html>
+                </html>
