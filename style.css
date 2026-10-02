@@ -1,344 +1,426 @@
-/* Import Google Font - Poppins */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
-
 * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: "Poppins", sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
 :root {
-  /* Dark mode colors */
-  --text-color: #E3E3E3;
-  --subheading-color: #828282;
-  --placeholder-color: #A6A6A6;
-  --primary-color: #242424;
-  --secondary-color: #383838;
-  --secondary-hover-color: #444;
-}
-
-.light_mode {
-  /* Light mode colors */
-  --text-color: #222;
-  --subheading-color: #A0A0A0;
-  --placeholder-color: #6C6C6C;
-  --primary-color: #FFF;
-  --secondary-color: #E9EEF6;
-  --secondary-hover-color: #DBE1EA;
+    --red: #ff003c;
+    --bright-red: #ff174f;
+    --dark-red: #650018;
+    --black: #030003;
+    --white: #ffffff;
 }
 
 body {
-  background: var(--primary-color);
+    min-height: 100vh;
+    background: #000;
+    color: white;
+    font-family: Arial, Helvetica, sans-serif;
+    overflow-x: hidden;
 }
 
-.header, .chat-list .message, .typing-form {
-  margin: 0 auto;
-  max-width: 980px;
+/* Matrix */
+#matrix {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -2;
+    background: #000;
 }
 
-.header {
-  margin-top: 6vh;
-  padding: 1rem;
-  overflow-x: hidden;
+/* Dark overlay */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background:
+        radial-gradient(
+            circle at center,
+            rgba(255, 0, 55, 0.13),
+            transparent 55%
+        ),
+        linear-gradient(
+            rgba(0, 0, 0, 0.35),
+            rgba(0, 0, 0, 0.85)
+        );
+    z-index: -1;
+    pointer-events: none;
 }
 
-body.hide-header .header {
-  margin: 0;
-  display: none;
+/* Main */
+.container {
+    min-height: 100vh;
+    padding: 30px 18px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
-.header :where(.title, .subtitle) {
-  color: var(--text-color);
-  font-weight: 500;
-  line-height: 4rem;
+/* Card */
+.card {
+    width: 100%;
+    max-width: 470px;
+    padding: 30px 25px;
+    border: 1px solid rgba(255, 0, 60, 0.65);
+    border-radius: 25px;
+    background: rgba(8, 0, 3, 0.86);
+    backdrop-filter: blur(12px);
+
+    box-shadow:
+        0 0 20px rgba(255, 0, 60, 0.2),
+        0 0 70px rgba(255, 0, 60, 0.1);
+
+    position: relative;
+    overflow: hidden;
 }
 
-.header .title {
-  width: fit-content;
-  font-size: 3rem;
-  background-clip: text;
-  background: linear-gradient(to right, #4285f4, #d96570);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+/* Card red glow */
+.card::before {
+    content: "";
+    position: absolute;
+    top: -100px;
+    left: 50%;
+    transform: translateX(-50%);
+
+    width: 220px;
+    height: 150px;
+
+    background: var(--red);
+    filter: blur(100px);
+    opacity: 0.18;
 }
 
-.header .subtitle {
-  font-size: 2.6rem;
-  color: var(--subheading-color);
+/* Status */
+.status {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+
+    font-size: 12px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    margin-bottom: 25px;
 }
 
-.suggestion-list {
-  width: 100%;
-  list-style: none;
-  display: flex;
-  gap: 1.25rem;
-  margin-top: 9.5vh;
-  overflow: hidden;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  scrollbar-width: none;
+#statusDot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: orange;
+
+    box-shadow: 0 0 12px orange;
 }
 
-.suggestion-list .suggestion {
-  cursor: pointer;
-  padding: 1.25rem;
-  width: 222px;
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  border-radius: 0.75rem;
-  justify-content: space-between;
-  background: var(--secondary-color);
-  transition: 0.2s ease;
+/* Logo */
+.logo {
+    text-align: center;
 }
 
-.suggestion-list .suggestion:hover {
-  background: var(--secondary-hover-color);
+.crown {
+    font-size: 48px;
+    color: var(--red);
+    text-shadow:
+        0 0 10px var(--red),
+        0 0 30px var(--red);
+
+    animation: crownGlow 2s infinite alternate;
 }
 
-.suggestion-list .suggestion :where(.text, .icon) {
-  font-weight: 400;
-  color: var(--text-color);
+@keyframes crownGlow {
+    from {
+        text-shadow: 0 0 10px var(--red);
+    }
+
+    to {
+        text-shadow:
+            0 0 10px var(--red),
+            0 0 40px var(--red);
+    }
 }
 
-.suggestion-list .suggestion .icon {
-  width: 42px;
-  height: 42px;
-  display: flex;
-  font-size: 1.3rem;
-  margin-top: 2.5rem;
-  align-self: flex-end;
-  align-items: center;
-  border-radius: 50%;
-  justify-content: center;
-  color: var(--text-color);
-  background: var(--primary-color);
+.logo h1 {
+    margin-top: 5px;
+    font-size: 31px;
+    letter-spacing: 4px;
 }
 
-.chat-list {
-  padding: 2rem 1rem 12rem;
-  max-height: 100vh;
-  overflow-y: auto;
-  scrollbar-color: #999 transparent;
+.logo h1 span {
+    color: var(--red);
+    text-shadow: 0 0 15px var(--red);
 }
 
-.chat-list .message.incoming {
-  margin-top: 1.5rem;
+.version {
+    margin-top: 8px;
+    color: #ff6685;
+    letter-spacing: 5px;
+    font-size: 11px;
+    font-weight: bold;
 }
 
-.chat-list .message .message-content {
-  display: flex;
-  gap: 1.5rem;
-  width: 100%;
-  align-items: center;
+/* Divider */
+.divider {
+    width: 75%;
+    height: 1px;
+    margin: 25px auto;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        var(--red),
+        transparent
+    );
+
+    box-shadow: 0 0 12px var(--red);
 }
 
-.chat-list .message .text {
-  color: var(--text-color);
-  white-space: pre-wrap;
+/* Description */
+.description {
+    text-align: center;
+    color: #bbb;
+    line-height: 1.6;
+    margin-bottom: 22px;
 }
 
-.chat-list .message.error .text {
-  color: #e55865;
+.description strong {
+    color: white;
 }
 
-.chat-list .message.loading .text {
-  display: none;
+/* Input */
+.input-box {
+    margin-bottom: 15px;
 }
 
-.chat-list .message .avatar {
-  width: 40px;
-  height: 40px;
-  object-fit: cover;
-  border-radius: 50%;
-  align-self: flex-start;
+.input-box input {
+    width: 100%;
+    height: 54px;
+
+    border: 1px solid rgba(255, 0, 60, 0.5);
+    border-radius: 12px;
+
+    background: rgba(255, 0, 60, 0.05);
+    color: white;
+
+    outline: none;
+    padding: 0 17px;
+
+    font-size: 15px;
+    transition: 0.3s;
 }
 
-.chat-list .message.loading .avatar {
-  animation: rotate 3s linear infinite;
+.input-box input::placeholder {
+    color: #777;
 }
 
-@keyframes rotate {
-  100% {
-    transform: rotate(360deg);
-  }
+.input-box input:focus {
+    border-color: var(--red);
+
+    box-shadow:
+        0 0 10px rgba(255, 0, 60, 0.3),
+        inset 0 0 10px rgba(255, 0, 60, 0.05);
 }
 
-.chat-list .message .icon {
-  color: var(--text-color);
-  cursor: pointer;
-  height: 35px;
-  width: 35px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: none;
-  font-size: 1.25rem;
-  margin-left: 3.5rem;
-  visibility: hidden;
+/* Button */
+.generate-btn {
+    width: 100%;
+    height: 55px;
+
+    border: none;
+    border-radius: 12px;
+
+    background: linear-gradient(
+        135deg,
+        #8d0024,
+        #ff003c
+    );
+
+    color: white;
+
+    font-size: 13px;
+    font-weight: bold;
+    letter-spacing: 1.5px;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 0 15px rgba(255, 0, 60, 0.3);
+
+    transition: 0.25s;
 }
 
-.chat-list .message .icon.hide {
-  visibility: hidden;
+.generate-btn:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 0 20px rgba(255, 0, 60, 0.6),
+        0 0 40px rgba(255, 0, 60, 0.2);
 }
 
-.chat-list .message:not(.loading, .error):hover .icon:not(.hide){
-  visibility: visible;
+.generate-btn:active {
+    transform: scale(0.98);
 }
 
-.chat-list .message .icon:hover {
-  background: var(--secondary-hover-color);
+.generate-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    transform: none;
 }
 
-.chat-list .message .loading-indicator {
-  display: none;
-  gap: 0.8rem;
-  width: 100%;
-  flex-direction: column;
+/* Message */
+.message {
+    min-height: 22px;
+    margin-top: 15px;
+
+    text-align: center;
+
+    font-size: 13px;
+    line-height: 1.5;
 }
 
-.chat-list .message.loading .loading-indicator {
-  display: flex;
+.message.error {
+    color: #ff496d;
 }
 
-.chat-list .message .loading-indicator .loading-bar {
-  height: 11px;
-  width: 100%;
-  border-radius: 0.135rem;
-  background-position: -800px 0;
-  background: linear-gradient(to right, #4285f4, var(--primary-color), #4285f4);
-  animation: loading 3s linear infinite;
+.message.success {
+    color: #7dffb2;
 }
 
-.chat-list .message .loading-indicator .loading-bar:last-child {
-  width: 70%;
+/* Pairing */
+.pairing-box {
+    display: none;
+
+    margin-top: 20px;
+    padding: 20px;
+
+    text-align: center;
+
+    border-radius: 15px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 0, 60, 0.15),
+            rgba(255, 0, 60, 0.03)
+        );
+
+    border: 1px solid rgba(255, 0, 60, 0.4);
 }
 
-@keyframes loading {
-  0% {
-    background-position: -800px 0;
-  }
-
-  100% {
-    background-position: 800px 0;
-  }
+.pairing-box p {
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: #aaa;
 }
 
-.typing-area {
-  position: fixed;
-  width: 100%;
-  left: 0;
-  bottom: 0;
-  padding: 1rem;
-  background: var(--primary-color);
+#pairingCode {
+    margin-top: 10px;
+
+    color: var(--red);
+
+    font-size: 27px;
+    font-weight: bold;
+    letter-spacing: 6px;
+
+    text-shadow: 0 0 15px var(--red);
 }
 
-.typing-area :where(.typing-form, .action-buttons) {
-  display: flex;
-  gap: 0.75rem;
+/* Info */
+.info {
+    margin-top: 25px;
+
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
 }
 
-.typing-form .input-wrapper {
-  width: 100%;
-  height: 56px;
-  display: flex;
-  position: relative;
+.info div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 12px 14px;
+
+    border-radius: 9px;
+    background: rgba(255, 255, 255, 0.025);
 }
 
-.typing-form .typing-input {
-  height: 100%;
-  width: 100%;
-  border: none;
-  outline: none;
-  resize: none;
-  font-size: 1rem;
-  color: var(--text-color);
-  padding: 1.1rem 4rem 1.1rem 1.5rem;
-  border-radius: 100px;
-  background: var(--secondary-color);
+.info span {
+    color: #777;
+    font-size: 9px;
+    letter-spacing: 2px;
 }
 
-.typing-form .typing-input:focus {
-  background: var(--secondary-hover-color);
+.info strong {
+    color: #eee;
+    font-size: 10px;
 }
 
-.typing-form .typing-input::placeholder {
-  color: var(--placeholder-color);
+/* ZIGALY XR */
+.zigaly {
+    margin-top: 30px;
+    text-align: center;
 }
 
-.typing-area .icon {
-  width: 56px;
-  height: 56px;
-  flex-shrink: 0;
-  cursor: pointer;
-  border-radius: 50%;
-  display: flex;
-  font-size: 1.4rem;
-  color: var(--text-color);
-  align-items: center;
-  justify-content: center;
-  background: var(--secondary-color);
-  transition: 0.2s ease;
+.zigaly span {
+    display: inline-block;
+
+    color: #fff;
+
+    font-size: 24px;
+    font-weight: 900;
+    letter-spacing: 7px;
+
+    text-shadow:
+        0 0 5px white,
+        0 0 15px var(--red),
+        0 0 30px var(--red);
+
+    animation: zigaly 1.7s infinite alternate;
 }
 
-.typing-area .icon:hover {
-  background: var(--secondary-hover-color);
+@keyframes zigaly {
+    from {
+        opacity: 0.65;
+        transform: scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1.03);
+    }
 }
 
-.typing-form #send-message-button {
-  position: absolute;
-  right: 0;
-  outline: none;
-  border: none;
-  transform: scale(0);
-  background: transparent;
-  transition: transform 0.2s ease;
+/* Footer */
+footer {
+    margin-top: 15px;
+
+    color: #555;
+    text-align: center;
+
+    font-size: 9px;
+    letter-spacing: 1px;
 }
 
-.typing-form .typing-input:valid ~ #send-message-button {
-  transform: scale(1);
-}
+/* Mobile */
+@media (max-width: 480px) {
 
-.typing-area .disclaimer-text {
-  text-align: center;
-  font-size: 0.85rem;
-  margin-top: 1rem;
-  color: var(--placeholder-color);
-}
+    .container {
+        padding: 20px 12px;
+    }
 
-/* Responsive media query code for small screen */
-@media (max-width: 768px) {
-  .header :is(.title, .subtitle) {
-    font-size: 2rem;
-    line-height: 2.6rem;
-  }
+    .card {
+        padding: 25px 18px;
+    }
 
-  .header .subtitle {
-    font-size: 1.7rem;
-  }
+    .logo h1 {
+        font-size: 25px;
+        letter-spacing: 3px;
+    }
 
-  .typing-area :where(.typing-form, .action-buttons) {
-    gap: 0.4rem;
-  }
-
-  .typing-form .input-wrapper {
-    height: 50px;
-  }
-
-  .typing-form .typing-input {
-    padding: 1.1rem 3.5rem 1.1rem 1.2rem;
-  }
-
-  .typing-area .icon {
-    height: 50px;
-    width: 50px;
-  }
-
-  .typing-area .disclaimer-text {
-    font-size: 0.75rem;
-    margin-top: 0.5rem;
-  }
-}
+    .zigaly span {
+        font-size: 20px;
+        letter-spacing: 5px;
+    }
+                 }
