@@ -1,300 +1,344 @@
-/* =========================================
-   QUEEN LEXIE V4
-   ZIGALY XR
-   ========================================= */
+/*
+  QUEEN LEXIE V4
+  Developed by ZIGALY XR
+*/
 
-const canvas = document.getElementById("matrix");
-const ctx = canvas.getContext("2d");
+const BOT_URL = "https://pair.xwolf.space";
+
+const matrix = document.getElementById("matrix");
+const ctx = matrix.getContext("2d");
+
+const generateBtn = document.getElementById("generateBtn");
+const phoneInput = document.getElementById("phone");
 
 const statusDot = document.getElementById("statusDot");
 const statusText = document.getElementById("statusText");
 
-const generateBtn = document.getElementById("generateBtn");
-const phoneNumber = document.getElementById("phoneNumber");
+const loading = document.getElementById("loading");
+const result = document.getElementById("result");
+const pairCode = document.getElementById("pairCode");
 
+const copyBtn = document.getElementById("copyBtn");
 const message = document.getElementById("message");
-const pairingBox = document.getElementById("pairingBox");
-const pairingCode = document.getElementById("pairingCode");
 
+/* =========================
+   MATRIX EFFECT
+========================= */
 
-/* =========================================
-   RED MATRIX EFFECT
-   ========================================= */
+function resizeMatrix() {
+  matrix.width = window.innerWidth;
+  matrix.height = window.innerHeight;
+}
+
+resizeMatrix();
+
+window.addEventListener("resize", resizeMatrix);
+
+const letters =
+  "01ABCDEFGHIJKLMNOPQRSTUVWXYZ#$%&@";
 
 let fontSize = 14;
-let columns;
-let drops;
+let columns = Math.floor(window.innerWidth / fontSize);
 
-function setupMatrix() {
-
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    columns = Math.floor(canvas.width / fontSize);
-
-    drops = [];
-
-    for (let i = 0; i < columns; i++) {
-        drops[i] = Math.random() * -50;
-    }
-}
+let drops = Array(columns).fill(1);
 
 function drawMatrix() {
 
-    ctx.fillStyle = "rgba(0, 0, 0, 0.08)";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = "rgba(0, 0, 0, 0.08)";
+  ctx.fillRect(
+    0,
+    0,
+    matrix.width,
+    matrix.height
+  );
 
-    ctx.font = fontSize + "px monospace";
+  ctx.fillStyle = "#ff003c";
+  ctx.font = fontSize + "px monospace";
 
-    const characters =
-        "01ABCDEFGHIJKLMNOPQRSTUVWXYZ#$%&@<>[]{}";
+  for (let i = 0; i < drops.length; i++) {
 
-    for (let i = 0; i < drops.length; i++) {
+    const text =
+      letters.charAt(
+        Math.floor(
+          Math.random() * letters.length
+        )
+      );
 
-        const character =
-            characters.charAt(
-                Math.floor(Math.random() * characters.length)
-            );
+    ctx.fillText(
+      text,
+      i * fontSize,
+      drops[i] * fontSize
+    );
 
-        ctx.fillStyle =
-            Math.random() > 0.9
-                ? "#ffffff"
-                : "#ff003c";
-
-        ctx.shadowBlur = 8;
-        ctx.shadowColor = "#ff003c";
-
-        ctx.fillText(
-            character,
-            i * fontSize,
-            drops[i] * fontSize
-        );
-
-        ctx.shadowBlur = 0;
-
-        if (
-            drops[i] * fontSize > canvas.height &&
-            Math.random() > 0.975
-        ) {
-            drops[i] = 0;
-        }
-
-        drops[i]++;
+    if (
+      drops[i] * fontSize >
+        matrix.height &&
+      Math.random() > 0.975
+    ) {
+      drops[i] = 0;
     }
+
+    drops[i]++;
+  }
 }
 
-setupMatrix();
-
-setInterval(drawMatrix, 40);
-
-window.addEventListener("resize", setupMatrix);
+setInterval(drawMatrix, 45);
 
 
-/* =========================================
+/* =========================
+   MESSAGE
+========================= */
+
+function showMessage(text, type = "") {
+
+  message.textContent = text;
+
+  message.className = "message";
+
+  if (type) {
+    message.classList.add(type);
+  }
+}
+
+
+/* =========================
    BOT STATUS
-   ========================================= */
-
-const BOT_URL = "https://pair.xwolf.space";
-
-
-function setStatus(online) {
-
-    if (online) {
-
-        statusText.textContent = "BOT ONLINE";
-
-        statusDot.style.background = "#00ff73";
-        statusDot.style.boxShadow =
-            "0 0 12px #00ff73";
-
-        generateBtn.disabled = false;
-
-    } else {
-
-        statusText.textContent = "BOT OFFLINE";
-
-        statusDot.style.background = "#ff003c";
-        statusDot.style.boxShadow =
-            "0 0 12px #ff003c";
-
-        generateBtn.disabled = true;
-    }
-}
-
+========================= */
 
 async function checkBotStatus() {
 
-    statusText.textContent = "CHECKING BOT...";
+  statusText.textContent =
+    "Checking bot...";
 
-    statusDot.style.background = "orange";
-    statusDot.style.boxShadow = "0 0 12px orange";
+  statusDot.className =
+    "status-dot";
+
+  try {
+
+    const response =
+      await fetch(BOT_URL, {
+        method: "GET",
+        mode: "no-cors"
+      });
 
     /*
-       A browser cannot reliably determine the status of
-       another server unless that server allows CORS or
-       provides a status API.
-
-       Therefore this tries the server and safely falls
-       back to OFFLINE/UNAVAILABLE.
+      no-cors responses cannot expose the
+      actual HTTP status to the browser.
+      Reaching this point means the request
+      was attempted.
     */
 
-    try {
+    statusDot.classList.add("online");
 
-        const controller = new AbortController();
+    statusText.textContent =
+      "BOT SERVER AVAILABLE";
 
-        const timeout = setTimeout(
-            () => controller.abort(),
-            5000
-        );
+  } catch (error) {
 
-        const response = await fetch(BOT_URL, {
-            method: "GET",
-            mode: "no-cors",
-            signal: controller.signal
-        });
+    statusDot.classList.add("offline");
 
-        clearTimeout(timeout);
+    statusText.textContent =
+      "BOT OFFLINE";
 
-        /*
-           no-cors responses cannot expose the HTTP status.
-           Reaching this point means the request itself was
-           attempted successfully.
-        */
-
-        setStatus(true);
-
-    } catch (error) {
-
-        setStatus(false);
-
-        showMessage(
-            "QUEEN LEXIE is currently offline. Please try again later.",
-            "error"
-        );
-    }
+    showMessage(
+      "QUEEN LEXIE is currently offline. Please try again later.",
+      "error"
+    );
+  }
 }
 
 
-/* =========================================
-   MESSAGE
-   ========================================= */
+/* =========================
+   PHONE VALIDATION
+========================= */
 
-function showMessage(text, type) {
+function cleanPhoneNumber(number) {
 
-    message.textContent = text;
-    message.className = "message " + type;
+  return number
+    .replace(/\D/g, "")
+    .trim();
 }
 
 
-/* =========================================
-   GENERATOR BUTTON
-   ========================================= */
+/* =========================
+   PAIRING
+========================= */
 
-generateBtn.addEventListener("click", async () => {
+generateBtn.addEventListener(
+  "click",
+  async () => {
 
-    const number = phoneNumber.value.trim();
+    const phone =
+      cleanPhoneNumber(
+        phoneInput.value
+      );
 
-    pairingBox.style.display = "none";
+    if (!phone) {
 
-    if (!number) {
+      showMessage(
+        "Please enter your WhatsApp phone number.",
+        "error"
+      );
 
-        showMessage(
-            "Please enter your phone number first.",
-            "error"
-        );
+      phoneInput.focus();
 
-        return;
+      return;
     }
 
-    if (!/^[0-9+\s()-]{7,20}$/.test(number)) {
+    if (phone.length < 10) {
 
-        showMessage(
-            "Please enter a valid phone number.",
-            "error"
-        );
+      showMessage(
+        "Please enter a valid phone number with country code.",
+        "error"
+      );
 
-        return;
+      return;
     }
 
     generateBtn.disabled = true;
 
-    generateBtn.innerHTML =
-        "<span>⏳</span> CHECKING SERVER...";
+    loading.classList.remove("hidden");
+    result.classList.add("hidden");
 
-    showMessage(
-        "Connecting to the pairing service...",
-        "success"
-    );
-
-    /*
-       IMPORTANT:
-       Do not generate a fake WhatsApp pairing code
-       in the browser.
-
-       Your backend should provide a legitimate endpoint
-       that creates/returns the pairing code after proper
-       authorization.
-
-       Example backend endpoint:
-       /api/pair?phone=NUMBER
-
-       Replace the example section below with your own
-       authenticated backend API.
-    */
+    showMessage("");
 
     try {
 
-        /*
-        Example:
+      /*
+        IMPORTANT:
 
-        const response = await fetch(
-            "/api/pair?phone=" +
-            encodeURIComponent(number)
+        This is an example endpoint.
+
+        Your server must expose an API such as:
+
+        https://pair.xwolf.space/api/pair?phone=2637XXXXXXXX
+
+        Change the endpoint below to your
+        actual pairing API endpoint.
+      */
+
+      const apiURL =
+        `${BOT_URL}/api/pair?phone=${encodeURIComponent(phone)}`;
+
+      const response =
+        await fetch(apiURL, {
+          method: "GET",
+          headers: {
+            "Accept": "application/json"
+          }
+        });
+
+      if (!response.ok) {
+
+        throw new Error(
+          "Pairing server is offline."
         );
+      }
 
-        const data = await response.json();
+      const data =
+        await response.json();
 
-        if (!response.ok || !data.code) {
-            throw new Error("Pairing service unavailable");
+      /*
+        Expected server response example:
+
+        {
+          "success": true,
+          "code": "ABCD-EFGH"
         }
+      */
 
-        pairingCode.textContent = data.code;
-        pairingBox.style.display = "block";
+      if (
+        !data.success ||
+        !data.code
+      ) {
 
-        showMessage(
-            "Pairing code generated successfully.",
-            "success"
+        throw new Error(
+          "No pairing code was returned by the bot."
         );
-        */
+      }
 
-        await new Promise(
-            resolve => setTimeout(resolve, 1200)
-        );
+      pairCode.textContent =
+        data.code;
 
-        showMessage(
-            "The pairing generator is not connected to a backend yet. No fake code was generated.",
-            "error"
-        );
+      result.classList.remove(
+        "hidden"
+      );
+
+      showMessage(
+        "Pairing code generated successfully.",
+        "success"
+      );
 
     } catch (error) {
 
-        showMessage(
-            "QUEEN LEXIE pairing service is unavailable.",
-            "error"
-        );
+      result.classList.add(
+        "hidden"
+      );
+
+      showMessage(
+        "QUEEN LEXIE is offline or the pairing API is unavailable. No bot code was generated.",
+        "error"
+      );
 
     } finally {
 
-        generateBtn.disabled = false;
+      loading.classList.add(
+        "hidden"
+      );
 
-        generateBtn.innerHTML =
-            "<span>⚡</span> GENERATE PAIRING CODE";
+      generateBtn.disabled = false;
     }
-});
+  }
+);
 
 
-/* =========================================
+/* =========================
+   COPY CODE
+========================= */
+
+copyBtn.addEventListener(
+  "click",
+  async () => {
+
+    const code =
+      pairCode.textContent.trim();
+
+    if (
+      !code ||
+      code === "--------"
+    ) {
+      return;
+    }
+
+    try {
+
+      await navigator.clipboard.writeText(
+        code
+      );
+
+      copyBtn.textContent =
+        "COPIED ✓";
+
+      setTimeout(() => {
+
+        copyBtn.textContent =
+          "COPY CODE";
+
+      }, 2000);
+
+    } catch (error) {
+
+      showMessage(
+        "Unable to copy the code automatically.",
+        "error"
+      );
+    }
+  }
+);
+
+
+/* =========================
    START
-   ========================================= */
+========================= */
 
 checkBotStatus();
