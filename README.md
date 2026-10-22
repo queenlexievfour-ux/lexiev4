@@ -1,34 +1,29 @@
-# ZIG HOST CHECKER — Android source project
+# ZIG HOST CHECKER — Website + Backend
 
-This is a starter Python/Kivy project for building an Android APK. It includes the provided ZIG HOST CHECKER logo.
+Developed by **ZIGALY XR 🇿🇼**.
 
-## Features
-- Welcome notice and usage warning
-- Host/IP lookup and one-shot ping status/time
-- DNS lookup plus checks for a short list of common subdomains
-- Private IPv4 network scanner limited to ranges of 256 addresses or fewer
-- Scans only private IPv4 ranges and checks a small set of TCP ports
-- Output log, copy output, owner contact details, About menu, WhatsApp channel button placeholder
-- Exit confirmation
+## What the backend adds
+- `/api/health` confirms that the server is running.
+- `/api/dns?host=example.com` resolves a public hostname to IP addresses.
+- `POST /api/check` makes a short HTTPS HEAD request and reports the HTTP status and response time.
+- Basic rate limiting and validation are enabled. Private/reserved IP targets are blocked.
+- The frontend is served by the same Node.js server, so its API calls work on one deployment.
 
-## Important
-Use only on devices, domains, and networks you own or have permission to test. Ping can be blocked by a firewall, so “no reply” does not always mean a host is offline.
+**Important:** This is an HTTPS reachability check, not ICMP ping. It does not scan ports or scan networks. A server that blocks HTTPS may show no response even if it is online. Use it only for hosts you own or have permission to check.
 
-## Configure WhatsApp channel
-Open `main.py` and replace `PUT_YOUR_WHATSAPP_CHANNEL_LINK_HERE` with your actual WhatsApp Channel URL.
+## Run on your computer
+1. Install Node.js 18 or newer.
+2. Open a terminal in the `backend` folder.
+3. Run `npm install`.
+4. Run `npm start`.
+5. Open `http://localhost:3000` in your browser.
 
-## Build APK
-Buildozer is most reliable on Linux (Ubuntu) or a Linux environment. Android APK compilation is not performed just by saving these source files.
+## Deploy
+Deploy the whole project folder to a Node.js hosting service that supports a start command. Set the **Root Directory** to `backend`, and the start command to `npm start`. Because the HTML/CSS/JS files sit one folder above `backend`, if your host only deploys the backend folder, either deploy the full repository with root directory set to the repository root and start command `node backend/server.js`, or move the website files into a `public` folder and adjust the server. Recommended simple setup: deploy the full repository, set root directory to the repository root, and set start command to `node backend/server.js`; run `npm install` in the repository root after adding a root `package.json`, or use the provided backend `package.json` with root directory `backend` and configure the host to include the parent website files.
 
-1. Install Python 3 and system dependencies for Buildozer on Ubuntu.
-2. Install Buildozer: `python3 -m pip install --user buildozer`
-3. Open this project folder in a terminal.
-4. Run: `buildozer android debug`
-5. The APK should be created in the `bin/` folder.
-
-On a phone, you can use a Linux environment such as Termux with a suitable build setup, but Android builds are generally easier on a PC or cloud Linux workspace.
-
-## Project files
-- `main.py` — app interface and host diagnostic logic
-- `buildozer.spec` — Android build configuration
-- `assets/zig_host_checker_logo.png` — provided logo
+## Files
+- `index.html` — website interface
+- `style.css` — styling
+- `script.js` — frontend behavior
+- `backend/server.js` — API backend
+- `backend/package.json` — Node.js dependencies
